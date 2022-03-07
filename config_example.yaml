@@ -1,0 +1,11 @@
+sites:
+- site: google.com
+- site: google.co.uk
+- site: mywebsite.com
+  ports:
+  - port: 8080
+    proto: HTTP
+  - port: 990
+    proto: TLS
+- site: stackoverflow.com
+istio_gateway: istio-egressgateway.istio-system.svc.cluster.local
