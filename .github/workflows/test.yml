@@ -20,4 +20,7 @@ jobs:
         pip install -r requirements.txt
     - name: Analysing the code with pylint
       run: |
+        pylint generate_config.py
+    - name: run pytest tests
+      run: |
         pytest -vvv --cov=.
