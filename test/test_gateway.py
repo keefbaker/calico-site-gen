@@ -11,16 +11,12 @@ def get_yaml(filename):
 def test_gateway_basic():
     config = get_yaml("basic.yaml")
     expected_results = get_yaml("results_check/gateway.yaml")
-    actual_results = generate_config.generate_gateway(
-        config, "istio-egressgateway.istio-system.svc.cluster.local"
-    )
+    actual_results = generate_config.generate_gateway(config)
     assert expected_results == actual_results
 
 
 def test_gateway_complex():
     config = get_yaml("complex.yaml")
     expected_results = get_yaml("results_check/gatewaycomplex.yaml")
-    actual_results = generate_config.generate_gateway(
-        config, "istio-egressgateway.istio-system.svc.cluster.local"
-    )
+    actual_results = generate_config.generate_gateway(config)
     assert expected_results == actual_results

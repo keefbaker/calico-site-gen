@@ -1,30 +1,47 @@
+"""
+Generates istio manifests for allowing sites through the
+istio egress gateway.
+
+Run this with the config filename as an argument.
+
+Generated manifests will be in the output_manifests folder
+"""
 import argparse
 import os
 import yaml
 
 
 def parse_args():
+    """argument parser"""
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="which file contains your yaml config")
     return parser.parse_args()
 
 
 def get_initial_data(filename, sitename):
+    """
+    Gets the template to build from, and also returns
+    a name that can be used in the manifest for the site
+    """
     with open(
-        f"{os.path.dirname(os.path.realpath(__file__))}/templates/{filename}"
-    ) as stream:
+        f"{os.path.dirname(os.path.realpath(__file__))}/templates/{filename}",
+    encoding="UTF-8") as stream:
         data = yaml.safe_load(stream)
     easyname = sitename["site"].replace("*.", "").replace(".", "-").replace("*", "")
     return data, easyname
 
 
 def get_config():
+    """gets the filename argument and opens the config"""
     args = parse_args()
-    with open(args.filename) as yamlfile:
+    with open(args.filename, encoding="UTF-8") as yamlfile:
         return yaml.safe_load(yamlfile)
 
 
-def generate_gateway(site, gateway):
+def generate_gateway(site):
+    """
+    Creates the gateway manifest
+    """
     template, easyname = get_initial_data("gateway.yaml", site)
     if not site.get("ports"):
         site["ports"] = [{"port": 80, "proto": "HTTP"}, {"port": 443, "proto": "TLS"}]
@@ -45,6 +62,9 @@ def generate_gateway(site, gateway):
 
 
 def generate_destination_rule(site, gateway):
+    """
+    creates the destination rule manifest
+    """
     template, easyname = get_initial_data("destrule.yaml", site)
     template["metadata"]["name"] = f"egress-for-{easyname}"
     template["spec"]["host"] = gateway
@@ -53,6 +73,9 @@ def generate_destination_rule(site, gateway):
 
 
 def generate_virtual_service(site, gateway):
+    """
+    creates the virtual service
+    """
     template, easyname = get_initial_data("virtual_service.yaml", site)
     template["metadata"]["name"] = f"direct-{easyname}"
     template["spec"]["hosts"] = [site["site"]]
@@ -102,18 +125,25 @@ def generate_virtual_service(site, gateway):
 
 
 def main():
+    """
+    Primary entrypoint
+    * loads the config
+    * generates the manifest data
+    * writes that data out
+    """
     config = get_config()
     if not config.get("istio_gateway"):
         config["istio_gateway"] = "istio-egressgateway.istio-system.svc.cluster.local"
     for site in config["sites"]:
+        name = site['site'].replace('*.', '').replace('.', '-').replace('*', '')
         filename = (
-            f"output_manifests/{site['site'].replace('*.', '').replace('.', '-').replace('*', '')}.yaml"
+            f"output_manifests/{name}.yaml"
         )
         print(f">Processing {site['site']} to {filename}")
         destrule = generate_destination_rule(site, config["istio_gateway"])
-        gateway = generate_gateway(site, config["istio_gateway"])
+        gateway = generate_gateway(site)
         virtual_service = generate_virtual_service(site, config["istio_gateway"])
-        with open(filename, "w") as output_file:
+        with open(filename, "w", encoding="UTF-8") as output_file:
             output_file.write(
                 yaml.dump_all(
                     [destrule, gateway, virtual_service], default_flow_style=False
