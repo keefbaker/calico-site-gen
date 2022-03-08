@@ -107,7 +107,7 @@ def main():
         config["istio_gateway"] = "istio-egressgateway.istio-system.svc.cluster.local"
     for site in config["sites"]:
         filename = (
-            f"{site['site'].replace('*.', '').replace('.', '-').replace('*', '')}.yaml"
+            f"output_manifests/{site['site'].replace('*.', '').replace('.', '-').replace('*', '')}.yaml"
         )
         print(f">Processing {site['site']} to {filename}")
         destrule = generate_destination_rule(site, config["istio_gateway"])
