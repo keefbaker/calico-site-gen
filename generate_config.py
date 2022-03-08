@@ -106,14 +106,19 @@ def main():
     if not config.get("istio_gateway"):
         config["istio_gateway"] = "istio-egressgateway.istio-system.svc.cluster.local"
     for site in config["sites"]:
-        filename = f"{site['site'].replace('*.', '').replace('.', '-').replace('*', '')}.yaml"
+        filename = (
+            f"{site['site'].replace('*.', '').replace('.', '-').replace('*', '')}.yaml"
+        )
         print(f">Processing {site['site']} to {filename}")
         destrule = generate_destination_rule(site, config["istio_gateway"])
         gateway = generate_gateway(site, config["istio_gateway"])
         virtual_service = generate_virtual_service(site, config["istio_gateway"])
         with open(filename, "w") as output_file:
-            output_file.write(yaml.dump_all([destrule, gateway, virtual_service], default_flow_style=False))
-        
+            output_file.write(
+                yaml.dump_all(
+                    [destrule, gateway, virtual_service], default_flow_style=False
+                )
+            )
 
 
 if __name__ == "__main__":

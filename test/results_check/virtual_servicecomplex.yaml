@@ -1,0 +1,56 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: direct-bbc-co-uk
+spec:
+  hosts:
+  - "*.bbc.co.uk" 
+  gateways:
+  - mesh
+  - bbc-co-uk-gateway
+  http:
+  - match:
+    - gateways:
+      - mesh
+      port: 8080
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        subset: bbc-co-uk
+        port:
+          number: 8080
+      weight: 100
+  - match:
+    - gateways:
+      - bbc-co-uk-gateway
+      port: 8080
+    route:
+    - destination:
+        host: "*.bbc.co.uk"
+        port:
+          number: 8080
+  tls:
+  - match:
+    - gateways:
+      - mesh
+      port: 990
+      sniHosts:
+      - "*.bbc.co.uk"
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        subset: bbc-co-uk
+        port:
+          number: 990
+      weight: 100
+  - match:
+    - gateways:
+      - bbc-co-uk-gateway
+      port: 990
+      sniHosts:
+      - "*.bbc.co.uk"
+    route:
+    - destination:
+        host: "*.bbc.co.uk" 
+        port:
+          number: 990

@@ -1,0 +1,22 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: bbc-co-uk-gateway
+spec:
+  selector:
+    istio: egressgateway
+  servers:
+  - port:
+      number: 8080
+      name: bbc-co-uk-8080
+      protocol: HTTP
+    hosts:
+    - "*.bbc.co.uk"
+  - port:
+      number: 990
+      name: bbc-co-uk-990
+      protocol: TLS
+    hosts:
+    - "*.bbc.co.uk"
+    tls:
+      mode: PASSTHROUGH
