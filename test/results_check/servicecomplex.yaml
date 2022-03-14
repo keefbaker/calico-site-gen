@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: bbc-co-uk
+spec:
+  hosts:
+  - "*.bbc.co.uk"
+  ports:
+  - number: 8080
+    name: http-8080
+    protocol: HTTP
+  - number: 990
+    name: tls-990
+    protocol: TLS
+  resolution: DNS

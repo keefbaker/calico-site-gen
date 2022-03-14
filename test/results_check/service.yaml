@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: bbc-co-uk
+spec:
+  hosts:
+  - bbc.co.uk
+  ports:
+  - number: 80
+    name: http-80
+    protocol: HTTP
+  - number: 443
+    name: tls-443
+    protocol: TLS
+  resolution: DNS

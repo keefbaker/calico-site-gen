@@ -71,6 +71,24 @@ def generate_destination_rule(site, gateway):
     template["spec"]["subsets"][0]["name"] = easyname
     return template
 
+def generate_service(site):
+    """
+    creates the service entry
+    """
+    template, easyname = get_initial_data("service.yaml", site)
+    template["metadata"]["name"] = easyname
+    template["spec"]["hosts"].append(site["site"])
+    if not site.get("ports"):
+        site["ports"] = [{"port": 80, "proto": "HTTP"}, {"port": 443, "proto": "TLS"}]   
+    for port in site["ports"]:
+        template["spec"]["ports"].append(
+            {
+                "number": port["port"],
+                "name": f"{port['proto'].lower()}-{port['port']}",
+                "protocol": port["proto"]
+            }
+        )
+    return template
 
 def generate_virtual_service(site, gateway):
     """
@@ -142,11 +160,12 @@ def main():
         print(f">Processing {site['site']} to {filename}")
         destrule = generate_destination_rule(site, config["istio_gateway"])
         gateway = generate_gateway(site)
+        service = generate_service(site)
         virtual_service = generate_virtual_service(site, config["istio_gateway"])
         with open(filename, "w", encoding="UTF-8") as output_file:
             output_file.write(
                 yaml.dump_all(
-                    [destrule, gateway, virtual_service], default_flow_style=False
+                    [destrule, gateway, service, virtual_service], default_flow_style=False
                 )
             )
 
