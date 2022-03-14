@@ -79,7 +79,7 @@ def generate_service(site):
     template["metadata"]["name"] = easyname
     template["spec"]["hosts"].append(site["site"])
     if not site.get("ports"):
-        site["ports"] = [{"port": 80, "proto": "HTTP"}, {"port": 443, "proto": "TLS"}]   
+        site["ports"] = [{"port": 80, "proto": "HTTP"}, {"port": 443, "proto": "TLS"}]
     for port in site["ports"]:
         template["spec"]["ports"].append(
             {
